@@ -3,7 +3,6 @@ import cv2
 import numpy as np
 import typing as Text
 
-
 from numpy.typing import ArrayLike
 
 """ def sobel(frame: ArrayLike) -> :
@@ -62,6 +61,26 @@ def calc_speed(curr_Pos, last_pos):
 
 
 def main():
+    """
+    HOST = "98:D3:51:FD:B5:3A"
+    PORT = bluetooth.PORT_ANY
+    UUID = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
+
+    socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+    socket.bind((HOST, PORT))
+    port = socket.getsockname()[1]
+    print("포트 :", port)
+    bluetooth.advertise_service(
+        socket,
+        name="server",
+        service_id=UUID,
+        service_classes=[UUID, bluetooth.SERIAL_PORT_CLASS],
+        profiles=[bluetooth.SERIAL_PORT_PROFILE],
+    )
+    
+    connected_socket, client_address = socket.accept()
+
+    """
     carID = 0
     cap = cv2.VideoCapture(
         "http://192.168.66.1:9527/videostream.cgi?loginuse=admin&loginpas=admin")
@@ -73,6 +92,8 @@ def main():
     background = cv2.imread('background.png')
 
     car_tracking = np.array([[]])
+    send_data = 0
+    no_data = False
 
     while (cap.isOpened()):
         frame1 = my_cap_read(cap)
@@ -145,6 +166,9 @@ def main():
                     if ((prev_x -10 <= cX <= (prev_x+prev_w +100)) and (prev_y -100 <= cY <= (prev_y+prev_h +100)) and (x -100<= prev_cX <= (x + w +100)) and (y-100 <= prev_cY <= (y + h +100))):
                         print("Updating Trackers...")
                         matchCarID = i
+                        if (send_data % 3 == 0):
+                           #connected_socket.send(bytes(f'{cX},{cY};'))
+                           pass
 
                         if (car[8] != True):
                             speed = calc_speed(new_tracker[0], car)
@@ -169,6 +193,9 @@ def main():
                 carID += 1
 
             i += 1
+
+            send_data += 1
+            no_data = False
 
         i = 0
         # Update new points
